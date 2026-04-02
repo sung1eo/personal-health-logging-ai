@@ -1,0 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Core brand */
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --accent-light: #dcfce7;
+  --accent-muted: #bbf7d0;
+  --accent-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+
+  /* Backgrounds — layered depth */
+  --bg: #f2f7f2;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f8fdf8;
+  --bg-chat: #edf4ed;
+
+  /* Text */
+  --text-primary: #0f1f0f;
+  --text-secondary: #5a7060;
+  --text-tertiary: #9ab0a0;
+
+  /* Border */
+  --border: #deeade;
+  --border-light: #eaf3ea;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(16, 48, 20, 0.06), 0 1px 2px rgba(16, 48, 20, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 48, 20, 0.08), 0 2px 4px rgba(16, 48, 20, 0.04);
+  --shadow-card: 0 2px 8px rgba(16, 48, 20, 0.07);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-bubble: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1;
+}
+
+/* ── 타이포그래피 ── */
+.text-display {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.text-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.text-body {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.text-caption {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* ── 메시지 애니메이션 ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.msg-enter {
+  animation: fadeInUp 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.25s ease forwards;
+}
+
+.scale-in {
+  animation: scaleIn 0.2s ease forwards;
+}
+
+/* ── 로딩 점 ── */
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-4px); opacity: 1; }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  animation: dot-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── 어시스턴트 마크다운 ── */
+.md-content { font-size: 0.9rem; line-height: 1.85; color: var(--text-primary); }
+.md-content p { margin: 0 0 0.85em; }
+.md-content p:last-child { margin-bottom: 0; }
+.md-content strong { font-weight: 700; color: var(--text-primary); }
+.md-content em { font-style: italic; color: var(--text-secondary); }
+.md-content hr { border: none; border-top: 1px solid var(--border-light); margin: 1em 0; opacity: 0.6; }
+.md-content ul, .md-content ol { margin: 0.4em 0 0.85em 1.4em; padding: 0; }
+.md-content li { margin-bottom: 0.35em; line-height: 1.7; }
+.md-content code { background: var(--bg-chat); border-radius: 4px; padding: 0.15em 0.4em; font-size: 0.82em; font-family: monospace; }
+.md-content pre { background: var(--bg-chat); border-radius: 8px; padding: 0.85em 1.1em; overflow-x: auto; margin: 0.6em 0; }
+.md-content pre code { background: none; padding: 0; }
+.md-content h1, .md-content h2, .md-content h3 { font-weight: 700; margin: 0.9em 0 0.35em; line-height: 1.4; }
+.md-content h1 { font-size: 1.05em; }
+.md-content h2 { font-size: 0.97em; }
+.md-content h3 { font-size: 0.91em; }
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── 버튼 베이스 ── */
+.btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.btn-primary:hover { opacity: 0.92; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.4; box-shadow: none; }
+
+/* ── 음성 입력 버튼 ── */
+.voice-btn {
+  position: relative;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 50px;
+  border: none;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.voice-btn:active { transform: scale(0.97); }
+
+/* 녹음 중 상태 */
+.voice-btn[data-listening="true"] {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  animation: pulse-btn 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4); }
+  50%       { box-shadow: 0 4px 24px rgba(239, 68, 68, 0.65); }
+}
+
+/* 리플 링 */
+.voice-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.voice-btn[data-listening="true"] .voice-ripple {
+  animation: ripple-ring 1.8s ease-out infinite;
+}
+
+.voice-btn[data-listening="true"] .voice-ripple--delay {
+  animation: ripple-ring 1.8s ease-out 0.6s infinite;
+}
+
+@keyframes ripple-ring {
+  0%   { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.55); }
+}
+
+.voice-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.voice-label {
+  letter-spacing: 0.01em;
+}
+
+/* ── 폰트 크기 스케일링 ── */
+/* html의 font-size를 변경하면 모든 rem 단위값이 비례적으로 스케일됨 */
+html[data-font-size="normal"] { font-size: 16px; }
+html[data-font-size="large"]  { font-size: 18px; }
+html[data-font-size="xlarge"] { font-size: 21px; }
