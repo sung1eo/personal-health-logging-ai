@@ -5,17 +5,19 @@ import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import { getToken, clearToken, clearStoredUserId } from "@/lib/auth";
 import { applyFontSize, getFontSize, type FontSize } from "@/components/FontSizeProvider";
+import { updateProfile } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const STORAGE_KEY_CONV = "health_conversation_id";
 const STORAGE_KEY_MSGS = "health_chat_messages";
-const PROFILE_KEY = "health_user_profile";
 
 interface UserInfo {
   id: number;
   email: string | null;
   name: string | null;
   picture: string | null;
+  age: number | null;
+  gender: string | null;
 }
 
 interface UserProfile {
@@ -63,15 +65,18 @@ function MyContent() {
     if (!token) return;
     fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => (r.ok ? r.json() : null))
-      .then(setUser)
+      .then((u) => {
+        setUser(u);
+        if (u) {
+          setProfile({
+            age: u.age ? String(u.age) : "",
+            gender: (u.gender as UserProfile["gender"]) || "",
+          });
+        }
+      })
       .catch(() => null);
 
     setFontSize(getFontSize());
-
-    const saved = localStorage.getItem(PROFILE_KEY);
-    if (saved) {
-      try { setProfile(JSON.parse(saved)); } catch {}
-    }
   }, []);
 
   const handleFontSize = (size: FontSize) => {
@@ -79,8 +84,11 @@ function MyContent() {
     applyFontSize(size);
   };
 
-  const handleSaveProfile = () => {
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  const handleSaveProfile = async () => {
+    await updateProfile({
+      age: profile.age ? Number(profile.age) : null,
+      gender: profile.gender || null,
+    });
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2000);
   };
@@ -119,7 +127,7 @@ function MyContent() {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", marginBottom: "1rem", padding: "0.7rem 0.8rem", background: "var(--accent-light)", borderRadius: "var(--radius-md)" }}>
             <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>💚</span>
             <p style={{ fontSize: "0.78rem", lineHeight: 1.6, color: "var(--accent-dark)" }}>
-              입력하신 정보는 이 기기에만 저장되며 외부로 전송되지 않아요. 헬스로그가 나에 대해 더 잘 이해할수록 더 맞춤화된 건강 기록을 도와드릴 수 있어요.
+              입력하신 정보는 헬스로그 서버에 안전하게 저장돼요. AI가 나이와 성별을 참고해 더 맞춤화된 건강 기록을 도와드릴 수 있어요.
             </p>
           </div>
 

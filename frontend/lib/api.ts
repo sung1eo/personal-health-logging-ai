@@ -122,6 +122,15 @@ export async function streamMessage(
   }
 }
 
+export async function updateProfile(data: { age?: number | null; gender?: string | null }): Promise<void> {
+  const res = await fetch(`${BASE_URL}/auth/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update profile");
+}
+
 export async function deleteHealthRecord(id: number): Promise<void> {
   const res = await fetch(`${BASE_URL}/health-records/${id}`, {
     method: "DELETE",
