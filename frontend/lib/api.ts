@@ -122,6 +122,21 @@ export async function streamMessage(
   }
 }
 
+export async function createHealthRecord(data: {
+  body_part: string;
+  symptom_text: string;
+  context_text?: string;
+  occurred_at?: string;
+}): Promise<HealthRecord> {
+  const res = await fetch(`${BASE_URL}/health-records`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create record");
+  return res.json();
+}
+
 export async function updateProfile(data: { age?: number | null; gender?: string | null }): Promise<void> {
   const res = await fetch(`${BASE_URL}/auth/profile`, {
     method: "PUT",

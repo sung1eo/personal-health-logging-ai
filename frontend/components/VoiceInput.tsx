@@ -39,7 +39,9 @@ export default function VoiceInput({ onTranscript }: Props) {
 
   const toggle = () => {
     if (listening) {
-      stopAndRelease();
+      // abort() 는 결과를 버리고 즉시 종료 → stop() 으로 변경하면
+      // 현재까지 인식된 내용을 onresult로 반환 후 종료
+      recognitionRef.current?.stop();
       return;
     }
 
