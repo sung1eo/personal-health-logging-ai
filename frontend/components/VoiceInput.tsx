@@ -6,37 +6,61 @@ interface Props {
   onTranscript: (text: string) => void;
 }
 
+type SRConstructor = new () => SpeechRecognition;
+
+function getSRConstructor(): SRConstructor | null {
+  if (typeof window === "undefined") return null;
+  return (
+    (window as unknown as { SpeechRecognition?: SRConstructor }).SpeechRecognition ||
+    (window as unknown as { webkitSpeechRecognition?: SRConstructor }).webkitSpeechRecognition ||
+    null
+  );
+}
+
 export default function VoiceInput({ onTranscript }: Props) {
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    const SR =
-      (window as unknown as { SpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition ||
-      (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
-    if (SR) {
-      setSupported(true);
-      const recognition = new SR();
-      recognition.lang = "ko-KR";
-      recognition.interimResults = false;
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        onTranscript(event.results[0][0].transcript);
-        setListening(false);
-      };
-      recognition.onend = () => setListening(false);
-      recognitionRef.current = recognition;
+    if (getSRConstructor()) setSupported(true);
+  }, []);
+
+  const stopAndRelease = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.onresult = null;
+      recognitionRef.current.onend = null;
+      recognitionRef.current.onerror = null;
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
     }
-  }, [onTranscript]);
+    setListening(false);
+  };
 
   const toggle = () => {
-    if (!recognitionRef.current) return;
     if (listening) {
-      recognitionRef.current.stop();
-    } else {
-      recognitionRef.current.start();
-      setListening(true);
+      stopAndRelease();
+      return;
     }
+
+    const SR = getSRConstructor();
+    if (!SR) return;
+
+    // 매번 새 인스턴스 생성 → 이전 세션 마이크 스트림 완전 해제 보장
+    const recognition = new SR();
+    recognition.lang = "ko-KR";
+    recognition.interimResults = false;
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      onTranscript(event.results[0][0].transcript);
+      stopAndRelease();
+    };
+    recognition.onend = () => stopAndRelease();
+    recognition.onerror = () => stopAndRelease();
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setListening(true);
   };
 
   if (!supported) return null;
@@ -48,7 +72,6 @@ export default function VoiceInput({ onTranscript }: Props) {
       data-listening={listening ? "true" : "false"}
       aria-label={listening ? "녹음 중지" : "음성으로 기록하기"}
     >
-      {/* ripple rings — 녹음 중에만 활성화 */}
       <span className="voice-ripple" />
       <span className="voice-ripple voice-ripple--delay" />
 
