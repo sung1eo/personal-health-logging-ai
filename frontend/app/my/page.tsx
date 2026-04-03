@@ -56,8 +56,10 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
 function MyContent() {
   const router = useRouter();
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
   const [fontSize, setFontSize] = useState<FontSize>("normal");
   const [profile, setProfile] = useState<UserProfile>({ age: "", gender: "" });
+  const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
   useEffect(() => {
@@ -74,7 +76,8 @@ function MyContent() {
           });
         }
       })
-      .catch(() => null);
+      .catch(() => null)
+      .finally(() => setUserLoading(false));
 
     setFontSize(getFontSize());
   }, []);
@@ -85,12 +88,18 @@ function MyContent() {
   };
 
   const handleSaveProfile = async () => {
-    await updateProfile({
-      age: profile.age ? Number(profile.age) : null,
-      gender: profile.gender || null,
-    });
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 2000);
+    if (profileSaving) return;
+    setProfileSaving(true);
+    try {
+      await updateProfile({
+        age: profile.age ? Number(profile.age) : null,
+        gender: profile.gender || null,
+      });
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 2000);
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   const handleLogout = () => {
@@ -190,20 +199,40 @@ function MyContent() {
           {/* 저장 버튼 */}
           <button
             onClick={handleSaveProfile}
+            disabled={profileSaving || userLoading}
             style={{
               width: "100%",
               padding: "0.65rem",
               borderRadius: "var(--radius-md)",
               border: "none",
-              background: profileSaved ? "var(--accent-light)" : "var(--accent-gradient)",
-              color: profileSaved ? "var(--accent-dark)" : "#fff",
+              background: profileSaved
+                ? "var(--accent-light)"
+                : profileSaving || userLoading
+                ? "var(--border)"
+                : "var(--accent-gradient)",
+              color: profileSaved
+                ? "var(--accent-dark)"
+                : profileSaving || userLoading
+                ? "var(--text-tertiary)"
+                : "#fff",
               fontWeight: 600,
               fontSize: "0.88rem",
-              cursor: "pointer",
+              cursor: profileSaving || userLoading ? "not-allowed" : "pointer",
               transition: "all 0.2s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
             }}
           >
-            {profileSaved ? "✓ 저장됐어요!" : "저장하기"}
+            {profileSaving && (
+              <span style={{
+                width: 14, height: 14, border: "2px solid var(--text-tertiary)",
+                borderTopColor: "transparent", borderRadius: "50%",
+                display: "inline-block", animation: "spin 0.7s linear infinite",
+              }} />
+            )}
+            {profileSaved ? "✓ 저장됐어요!" : profileSaving ? "저장 중..." : "저장하기"}
           </button>
         </Card>
       </div>

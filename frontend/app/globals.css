@@ -224,6 +224,10 @@ body {
   animation: ripple-ring 1.8s ease-out 0.6s infinite;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes ripple-ring {
   0%   { opacity: 0.7; transform: scale(1); }
   100% { opacity: 0;   transform: scale(1.55); }
